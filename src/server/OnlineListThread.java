@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package sendfile.server;
+package server;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

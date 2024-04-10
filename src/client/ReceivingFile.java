@@ -1,4 +1,4 @@
-package sendfile.client;
+package client;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

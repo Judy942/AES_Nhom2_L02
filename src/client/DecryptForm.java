@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package sendfile.client;
+package client;
 
 import java.awt.HeadlessException;
 import java.io.File;
@@ -157,12 +157,6 @@ public class DecryptForm extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> {
             new DecryptForm().setVisible(true);
         });
-        
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new DecryptForm().setVisible(true);
-//            }
-//        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

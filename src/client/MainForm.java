@@ -1,34 +1,19 @@
-package sendfile.client;
+package client;
 
 
-import sendfile.client.LoginForm;
-import sendfile.client.ClientThread;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.HeadlessException;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.Vector;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-/**
- *
- * @author hanhhoatranthi
- */
 public class MainForm extends javax.swing.JFrame {
     Color textColor= Color.blue ;
     String username;
@@ -143,8 +128,7 @@ public class MainForm extends javax.swing.JFrame {
             sb.append("<html><table>");
             while(it.hasNext()){
                 Object e = it.next();
-//                URL url = getImageFile();
-//                Icon icon = new ImageIcon(this.getClass().getResource("/images/online.png"));
+
                 sb.append("<tr><td><b>></b></td><td>").append(e).append("</td></tr>");
                 System.out.println("Online: "+ e);
             }
@@ -193,21 +177,7 @@ public class MainForm extends javax.swing.JFrame {
       ************************************  Show Online Sample  *********************************************
     */
     
-    
-    
-    
-    /*
-        Get image file path
-    */
-//    public URL getImageFile(){
-//        URL url = this.getClass().getResource("/images/online.png");
-//        return url;
-//    }
-    
-    
-    /*
-        Set myTitle
-    */
+
     public void setMyTitle(String s){
         setTitle(s);
     }

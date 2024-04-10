@@ -1,8 +1,8 @@
-package sendfile.client;
+package client;
 
 
 import java.awt.HeadlessException;
-import sendfile.client.MainForm;
+import client.MainForm;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;

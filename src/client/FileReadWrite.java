@@ -1,4 +1,4 @@
-package sendfile.client;
+package client;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
