@@ -10,10 +10,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-/**
- *
- * @author hanhhoatranthi
- */
 public class OnlineListThread implements Runnable {
     
     MainForm main;

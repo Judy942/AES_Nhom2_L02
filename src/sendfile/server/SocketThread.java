@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package sendfile.server;
 
 import java.io.DataInputStream;
@@ -12,11 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.StringTokenizer;
-
-/**
- *
- * @author hanhhoatranthi
- */
 public class SocketThread implements Runnable {
 
     Socket socket;
@@ -110,9 +101,6 @@ public class SocketThread implements Runnable {
                         break;
 
                     case "CMD_CHATALL":
-                        /**
-                         * CMD_CHATALL [from] [message] *
-                         */
                         String chatall_from = st.nextToken();
                         String chatall_msg = "";
                         while (st.hasMoreTokens()) {
@@ -145,10 +133,7 @@ public class SocketThread implements Runnable {
 
                     case "CMD_SENDFILE":
                         main.appendMessage("CMD_SENDFILE : Client đang gửi một file...");
-                        /*
-                         Format: CMD_SENDFILE [Filename] [Size] [Recipient] [Consignee]  from: Sender Format
-                         Format: CMD_SENDFILE [Filename] [Size] [Consignee] to Receiver Format
-                         */
+              
                         String file_name = st.nextToken();
                         String filesize = st.nextToken();
                         String sendto = st.nextToken();
@@ -160,42 +145,33 @@ public class SocketThread implements Runnable {
                          */
                         main.appendMessage("CMD_SENDFILE : sẵn sàng cho các kết nối..");
                         Socket cSock = main.getClientFileSharingSocket(sendto); /* Consignee Socket  */
-                        /*   Now Check if the consignee socket was exists.   */
-
+                        
                         if (cSock != null) { /* Exists   */
 
                             try {
                                 main.appendMessage("CMD_SENDFILE : Đã được kết nối..!");
-                                /**
-                                 * Đầu tiên là viết filename..  *
-                                 */
+                               
                                 main.appendMessage("CMD_SENDFILE : đang gửi file đến client...");
                                 DataOutputStream cDos = new DataOutputStream(cSock.getOutputStream());
                                 cDos.writeUTF("CMD_SENDFILE " + file_name + " " + filesize + " " + consignee);
-                                /**
-                                 * Thứ hai là đọc nội dung file   *
-                                 */
+                                
                                 InputStream input = socket.getInputStream();
-                                OutputStream sendFile = cSock.getOutputStream();
-                                byte[] buffer = new byte[BUFFER_SIZE];
-                                int cnt;
-                                while ((cnt = input.read(buffer)) > 0) {
-                                    sendFile.write(buffer, 0, cnt);
+                                try (OutputStream sendFile = cSock.getOutputStream()) {
+                                    byte[] buffer = new byte[BUFFER_SIZE];
+                                    int cnt;
+                                    while ((cnt = input.read(buffer)) > 0) {
+                                        sendFile.write(buffer, 0, cnt);
+                                    }
+                                    sendFile.flush();
                                 }
-                                sendFile.flush();
-                                sendFile.close();
-                                /**
-                                 * Xóa danh sách client *
-                                 */
+                             
                                 main.removeClientFileSharing(sendto);
                                 main.removeClientFileSharing(consignee);
                                 main.appendMessage("CMD_SENDFILE : File đã được gửi đến client...");
                             } catch (IOException e) {
                                 main.appendMessage("[CMD_SENDFILE]: " + e.getMessage());
                             }
-                        } else { /*   Không tồn tại, return error  */
-                            /*   FORMAT: CMD_SENDFILEERROR  */
-
+                        } else { 
                             main.removeClientFileSharing(consignee);
                             main.appendMessage("CMD_SENDFILE : Client '" + sendto + "' không tìm thấy.!");
                             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -204,9 +180,7 @@ public class SocketThread implements Runnable {
                         break;
 
                     case "CMD_SENDFILERESPONSE":
-                        /*
-                         Format: CMD_SENDFILERESPONSE [username] [Message]
-                         */
+                     
                         String receiver = st.nextToken(); // phương thức nhận receiver username
                         String rMsg = ""; // phương thức nhận error message
                         main.appendMessage("[CMD_SENDFILERESPONSE]: username: " + receiver);

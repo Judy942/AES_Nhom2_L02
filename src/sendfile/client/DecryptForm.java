@@ -5,6 +5,7 @@
  */
 package sendfile.client;
 
+import java.awt.HeadlessException;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -135,59 +136,33 @@ public class DecryptForm extends javax.swing.JFrame {
             String Key = tfKey.getText();
             String t = txtEncrypt.getText();
             if (Key.length() == 16 || Key.length() == 24 || Key.length() == 32) {
-
                 AES AES = new AES(Key);
-
                 String fixout = AES.ECB_decrypt(t);
                 txtDecrypt.setText(fixout);
                 if (!fileName.equals("")) {
                     FileReadWrite.WriteFile(fileName, fixout);
                     JOptionPane.showMessageDialog(this, "\nVăn bản giải mã đã được ghi vào " + fileName);
                 }
-
             }
             else{
                 JOptionPane.showMessageDialog(this, "\nVui lòng nhập đúng số kí tự (16,24,32) key");
             }
-        } catch (Exception e) {
+        } catch (HeadlessException e) {
             System.err.println(e);
             
         }
     }//GEN-LAST:event_btnDecryptActionPerformed
 
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DecryptForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DecryptForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DecryptForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DecryptForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new DecryptForm().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new DecryptForm().setVisible(true);
         });
+        
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new DecryptForm().setVisible(true);
+//            }
+//        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

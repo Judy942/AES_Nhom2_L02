@@ -6,27 +6,15 @@ import java.util.Arrays;
 
 public class AES {
 
-    // current round index
-    private int actual; 
-
-    // number of chars (32 bit)
+    private int round; 
     private static int Nb = 4;
     private int Nk;
-
-    // number of rounds for current AES
     private int Nr;
-
-    // state
     private int[][][] state;
-
-    // key stuff
     private int[] w;
     private int[] key;
 
-    // Initialization vector (only for CBC)
-    // necessary matrix for AES (sBox + inverted one & rCon)
-    private static int[] sBox = new int[]{
-        //0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
+    private static final int[] sBox = new int[]{
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
         0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
         0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
@@ -44,7 +32,7 @@ public class AES {
         0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
         0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16};
 
-    private static int[] rsBox = new int[]{
+    private static final int[] inv_sBox = new int[]{
         0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
         0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
         0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
@@ -62,7 +50,7 @@ public class AES {
         0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
         0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d};
 
-    private static int[] rCon = new int[]{
+    private static final int[] rCon = new int[]{
         0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a,
         0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39,
         0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a,
@@ -93,20 +81,19 @@ public class AES {
             this.key[i] = key[i];
         }
 
-        // AES standard (4*32) = 128 bits
         Nb = 4;
         switch (key.length) {
-            // 128 bit key
+            // 128 bit 
             case 16:
-                Nr = 10;// 
+                Nr = 10;
                 Nk = 4;
                 break;
-            // 192 bit key
+            // 192 bit 
             case 24:
                 Nr = 12;
                 Nk = 6;
                 break;
-            // 256 bit key
+            // 256 bit 
             case 32:
                 Nr = 14;
                 Nk = 8;
@@ -115,21 +102,12 @@ public class AES {
                 throw new IllegalArgumentException("It only supports 128, 192 and 256 bit keys!");
         }
 
-        // The storage array creation for the states.
-        // Only 2 states with 4 rows and Nb columns are required.
         state = new int[2][4][Nb];
 
-        // The storage vector for the expansion of the key creation.
         w = new int[Nb * (Nr + 1)]; // lưu trữ các khóa mở rộng được tạo trong quá trình khởi tạo
-
-        // Key expansion
         expandKey();
     }
 
-    // The 128 bits of a state are an XOR offset applied to them with the 128 bits of the key expended.
-    // s: state matrix that has Nb columns and 4 rows.
-    // Round: A round of the key w to be added.
-    // s: returns the addition of the key per round
     private int[][] addRoundKey(int[][] s, int round) {
         for (int c = 0; c < Nb; c++) {
             for (int r = 0; r < 4; r++) {
@@ -139,26 +117,26 @@ public class AES {
         return s;
     }
 
-    // Cipher/Decipher methods
     private int[][] cipher(int[][] in, int[][] out) {
         for (int i = 0; i < in.length; i++) {
-            for (int j = 0; j < in.length; j++) {
-                out[i][j] = in[i][j];
-            }
-        }// quy trình mã hóa AES
-        actual = 0;
-        addRoundKey(out, actual);
+            System.arraycopy(in[i], 0, out[i], 0, in.length);
+//            for (int j = 0; j < in.length; j++) {
+//                out[i][j] = in[i][j];
+//            }
+        }
+        round = 0;
+        addRoundKey(out, round);
 
-        for (actual = 1; actual < Nr; actual++) {
+        for (round = 1; round < Nr; round++) {
             subBytes(out);
             shiftRows(out);
             mixColumns(out);
-            addRoundKey(out, actual);
+            addRoundKey(out, round);
         }
 
         subBytes(out);
         shiftRows(out);
-        addRoundKey(out, actual);
+        addRoundKey(out, round);
         return out;
     }
 
@@ -168,24 +146,23 @@ public class AES {
                 out[i][j] = in[i][j];
             }
         }//Quy trình giải mã AES
-        actual = Nr;
-        addRoundKey(out, actual);
+        round = Nr;
+        addRoundKey(out, round);
 
-        for (actual = Nr - 1; actual > 0; actual--) {
+        for (round = Nr - 1; round > 0; round--) {
             invShiftRows(out);
             invSubBytes(out);
-            addRoundKey(out, actual);
+            addRoundKey(out, round);
             invMixColumnas(out);
         }
         invShiftRows(out);
         invSubBytes(out);
-        addRoundKey(out, actual);
+        addRoundKey(out, round);
         return out;
 
     }
 
-    // Main cipher/decipher helper-methods (for 128-bit plain/cipher text in,
-    // and 128-bit cipher/plain text out) produced by the encryption algorithm.
+
     private byte[] encrypt(byte[] text) {
         if (text.length != 16) {
             throw new IllegalArgumentException("Only 16-byte blocks can be encrypted");
@@ -233,10 +210,10 @@ public class AES {
     private int[][] invMixColumnas(int[][] state) {
         int temp0, temp1, temp2, temp3;
         for (int c = 0; c < Nb; c++) {
-            temp0 = mult(0x0e, state[0][c]) ^ mult(0x0b, state[1][c]) ^ mult(0x0d, state[2][c]) ^ mult(0x09, state[3][c]);
-            temp1 = mult(0x09, state[0][c]) ^ mult(0x0e, state[1][c]) ^ mult(0x0b, state[2][c]) ^ mult(0x0d, state[3][c]);
-            temp2 = mult(0x0d, state[0][c]) ^ mult(0x09, state[1][c]) ^ mult(0x0e, state[2][c]) ^ mult(0x0b, state[3][c]);
-            temp3 = mult(0x0b, state[0][c]) ^ mult(0x0d, state[1][c]) ^ mult(0x09, state[2][c]) ^ mult(0x0e, state[3][c]);
+            temp0 = fmul(0x0e, state[0][c]) ^ fmul(0x0b, state[1][c]) ^ fmul(0x0d, state[2][c]) ^ fmul(0x09, state[3][c]);
+            temp1 = fmul(0x09, state[0][c]) ^ fmul(0x0e, state[1][c]) ^ fmul(0x0b, state[2][c]) ^ fmul(0x0d, state[3][c]);
+            temp2 = fmul(0x0d, state[0][c]) ^ fmul(0x09, state[1][c]) ^ fmul(0x0e, state[2][c]) ^ fmul(0x0b, state[3][c]);
+            temp3 = fmul(0x0b, state[0][c]) ^ fmul(0x0d, state[1][c]) ^ fmul(0x09, state[2][c]) ^ fmul(0x0e, state[3][c]);
 
             state[0][c] = temp0;
             state[1][c] = temp1;
@@ -290,7 +267,7 @@ public class AES {
         int subWord = 0;
         for (int i = 24; i >= 0; i -= 8) {
             int in = word << i >>> 24;
-            subWord |= rsBox[in] << (24 - i);
+            subWord |= inv_sBox[in] << (24 - i);
         }
         return subWord;
     }
@@ -309,7 +286,6 @@ public class AES {
         while (i < Nb * (Nr + 1)) {
             temp = w[i - 1];
             if (i % Nk == 0) {
-                // apply an XOR with a constant round rCon.
                 temp = subWord(rotWord(temp)) ^ (rCon[i / Nk] << 24);
             } else if (Nk > 6 && (i % Nk == 4)) {
                 temp = subWord(temp);
@@ -325,10 +301,10 @@ public class AES {
         int temp0, temp1, temp2, temp3;
         for (int c = 0; c < Nb; c++) {
 
-            temp0 = mult(0x02, state[0][c]) ^ mult(0x03, state[1][c]) ^ state[2][c] ^ state[3][c];
-            temp1 = state[0][c] ^ mult(0x02, state[1][c]) ^ mult(0x03, state[2][c]) ^ state[3][c];
-            temp2 = state[0][c] ^ state[1][c] ^ mult(0x02, state[2][c]) ^ mult(0x03, state[3][c]);
-            temp3 = mult(0x03, state[0][c]) ^ state[1][c] ^ state[2][c] ^ mult(0x02, state[3][c]);
+            temp0 = fmul(0x02, state[0][c]) ^ fmul(0x03, state[1][c]) ^ state[2][c] ^ state[3][c];
+            temp1 = state[0][c] ^ fmul(0x02, state[1][c]) ^ fmul(0x03, state[2][c]) ^ state[3][c];
+            temp2 = state[0][c] ^ state[1][c] ^ fmul(0x02, state[2][c]) ^ fmul(0x03, state[3][c]);
+            temp3 = fmul(0x03, state[0][c]) ^ state[1][c] ^ state[2][c] ^ fmul(0x02, state[3][c]);
 
             state[0][c] = temp0;
             state[1][c] = temp1;
@@ -339,14 +315,14 @@ public class AES {
         return state;
     }
 
-    private static int mult(int a, int b) {
+    private static int fmul(int a, int b) {
         int sum = 0;
-        while (a != 0) { // while it is not 0
-            if ((a & 1) != 0) { // check if the first bit is 1
-                sum = sum ^ b; // add b from the smallest bit
+        while (a != 0) { 
+            if ((a & 1) != 0) { 
+                sum = sum ^ b; 
             }
-            b = xtime(b); // bit shift left mod 0x11b if necessary;
-            a = a >>> 1; // lowest bit of "a" was used so shift right
+            b = xtime(b); 
+            a = a >>> 1; 
         }
         return sum;
 
@@ -359,14 +335,14 @@ public class AES {
     private int[][] shiftRows(int[][] state) {
         int temp1, temp2, temp3, i;
 
-        // row 1
+        
         temp1 = state[1][0];
         for (i = 0; i < Nb - 1; i++) {
             state[1][i] = state[1][(i + 1) % Nb];
         }
         state[1][Nb - 1] = temp1;
 
-        // row 2, moves 1-byte
+        
         temp1 = state[2][0];
         temp2 = state[2][1];
         for (i = 0; i < Nb - 2; i++) {
@@ -375,7 +351,6 @@ public class AES {
         state[2][Nb - 2] = temp1;
         state[2][Nb - 1] = temp2;
 
-        // row 3, moves 2-bytes
         temp1 = state[3][0];
         temp2 = state[3][1];
         temp3 = state[3][2];
@@ -414,15 +389,6 @@ public class AES {
         return (b << 1) ^ 0x11b;
     }
 
-//    private static byte[] xor(byte[] a, byte[] b) {
-//        byte[] result = new byte[Math.min(a.length, b.length)];
-//        for (int j = 0; j < result.length; j++) {
-//            int xor = a[j] ^ b[j];
-//            result[j] = (byte) (0xff & xor);
-//        }
-//        return result;
-//    }
-    // Public methods
     public String ECB_encrypt(String inputText) {// chia dữ liệu đầu vào thành các khối 128 bit mã hóa rồi ghi vào out
         byte[] text = inputText.getBytes();
         System.out.println("leng: " + text.length);
@@ -432,10 +398,8 @@ public class AES {
             try {
                 out.write(encrypt(Arrays.copyOfRange(text, i, i + 16)));
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
-
         return byteToHex(out.toByteArray());
     }
 
@@ -446,7 +410,6 @@ public class AES {
             try {
                 out.write(decrypt(Arrays.copyOfRange(text, i, i + 16)));
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
         return new String(out.toByteArray());

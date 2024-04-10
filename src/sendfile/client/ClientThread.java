@@ -66,7 +66,6 @@ public class ClientThread implements Runnable{
                     //  hàm này sẽ thông báo đến client rằng có một file nhận, Chấp nhận hoặc từ chối file  
                     case "CMD_FILE_XD":  // Format:  CMD_FILE_XD [sender] [receiver] [filename]
                         String sender = st.nextToken();
-                        String receiver = st.nextToken();
                         String fname = st.nextToken();
                         int confirm = JOptionPane.showConfirmDialog(main, "Từ: "+sender+"\ntên file: "+fname+"\nbạn có Chấp nhận file này không.?");
                         //SoundEffect.FileSharing.play(); //   Play Audio
